@@ -1,41 +1,73 @@
 #!/usr/bin/env bash
 
-# Exit on missing variables and failed pipelines
+# Treat missing variables and failed pipelines as errors
 set -eu
 
-# The first argument is the store location
-# Use realpath to normalize the path
-store_location="$(realpath "$1")" || { \
+# Read the store location from the first argument
+# Normalize the path with `realpath` to avoid issues
+# with symlinks and bad formatted paths
+store_location="$(realpath "$1")" || {
   echo >&2 "Error: the first argument is missing or invalid"
   echo >&2 "Usage: $0 <passwords_directory>"
-  exit 1;
+  exit 1
 }
 
-# Do not edit this line, you will mess the order
-echo "login_password,folder,favorite,type,name,notes,fields,reprompt,login_uri,login_username"
+# A helper function for printing a csv row
+print_cvs_row(){
+  printf '"%s"' "$1"
+  shift;
+  printf ',"%s"' "$@"
+  echo -n $'\n'
+}
 
-# Choose the find command
-if command -v fd 2>&1 > /dev/null;
-then find_command=(fd --glob --print0 '*.gpg' "$store_location")
-else find_command=(find "$store_location" -name '*.gpg' -print0)
+# Define the order of the columns
+# Feel free to change this
+columns_order=(
+  "login_password"
+  "folder"
+  "favorite"
+  "type"
+  "name"
+  "notes"
+  "fields"
+  "reprompt"
+  "login_uri"
+  "login_username"
+)
+
+# Output the first row: the header
+print_cvs_row "${columns_order[@]}"
+
+# Fallback to `find` if `fd` isn't found
+if { command -v fd 2>&1; } >/dev/null; then
+  find_command=(fd --glob --print0 '*.gpg' "$store_location")
+else
+  find_command=(find "$store_location" -name '*.gpg' -print0)
 fi
 
-# iterate over all the found passwords
+# Find and iterate over all passwords
 "${find_command[@]}" | while IFS= read -r -d '' filepath; do
-  # decrypt the password file and duplicate all quote (") characters.
-  # in order to export all characters, including newlines, the fields
-  # must be surrounded with quotes and any existent quotes must be escaped.
-  # quotes are escaped in csv by duplicating them.
-  content="$(gpg -d "${filepath}" 2>/dev/null | sed 's/\"/\"\"/g')";
+  # Decrypt the password, and pre-escape it for the next step by duplicating
+  # all quote (") characters. In order to export all characters, including
+  # newlines and commas the columns must be surrounded with quotes, therefore
+  # any quotes in the content must be escaped. quotes are escaped in csv by
+  # duplicating them.
+  content="$(gpg -d "${filepath}" 2>/dev/null | sed 's/\"/\"\"/g')"
 
-  # The following code simply sets the value of every csv field
-  # expected by bitwarden and sometimes edit the content to remove
-  # the data that's already extracted, leaving the rest as just notes
-  
+  # The purpose of each following parapgraph is simply assigning value to a
+  # variable. Each variable represents a csv field.
+  # Any data left in the content variable are assigned to the notes column.
+  # The operations may edit the data to remove already extracted values so they
+  # don't end up in the notes.
+
   # Extract the password (csv: login_password)
-  login_password="$(echo -e "$content" | head -1)";
-  # Remove the password from the decrypted content
-  content="$(echo -e "$content" | sed '1d')";
+  if [[ -z "$content" ]]; then
+    login_password=""
+  else
+    login_password="$(echo -n "$content" | head -1)"
+    # Remove the password from the decrypted content
+    content="$(echo -e "$content" | sed '1d')"
+  fi
   # Store the folder path (csv: login_password)
   folder="$(dirname "$(realpath --relative-to="$store_location" "$filepath")")"
   # The type is always login (csv: type)
@@ -46,9 +78,10 @@ fi
   # Remove the line containing the username if it's found in the content
   regex='^user\(name\)\?:'
   login_username="$(echo -e "$content" | grep "$regex" | cut -d':' -f2 | sed 's/^ //')"
-  if [[ -z "$login_username" ]];
-  then login_username="$name";
-  else content="$(echo -e "$content" | sed /"$regex"/d)"
+  if [[ -z "$login_username" ]]; then
+    login_username="$name"
+  else
+    content="$(echo -e "$content" | sed /"$regex"/d)"
   fi
   # Skip favorite, fields, reprompt, login_uri
   favorite=''
@@ -58,7 +91,25 @@ fi
   # What's left from the deecrypted content is stored as notes
   notes="$content"
 
+  # Construct a csv row in the order defined in $columns_order
+  row=()
+  for col in "${columns_order[@]}"; do
+    case "$col" in
+    "login_password") row+=("$login_password") ;;
+    "folder") row+=("$folder") ;;
+    "favorite") row+=("$favorite") ;;
+    "type") row+=("$type") ;;
+    "name") row+=("$name") ;;
+    "notes") row+=("$notes") ;;
+    "fields") row+=("$fields") ;;
+    "reprompt") row+=("$reprompt") ;;
+    "login_uri") row+=("$login_uri") ;;
+    "login_username") row+=("$login_username") ;;
+    *)
+      echo >&2 "Error: Unreachable state"
+      ;;
+    esac
+  done
   # Do not edit this line, you will mess the order
-  printf '"%s",' "$login_password" "$folder" "$favorite" "$type" "$name" "$notes" "$fields" "$reprompt" "$login_uri" 
-  printf '"%s"\n' "$login_username"
-done;
+  print_cvs_row "${row[@]}"
+done
