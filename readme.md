@@ -19,8 +19,8 @@ exit # or CTRL+D
 # Features
 
 - Short, Simple, well documented script, easily modifiable for your use case.
-- Proper escaping of weird characters
-- No content is lost; if it isn't consumed, the content is left in the notes section
+- Proper escaping of weird characters.
+- Content is never discarded; it either consumed, or left in the notes section.
 
 
 # Missing features
@@ -29,5 +29,4 @@ exit # or CTRL+D
 
 # Why
 
-I made this in order to migrate from passwordstore to bitwarden. I did so as a reaction to "android password store" being archived (see https://github.com/android-password-store/Android-Password-Store/discussions/3260). I thought people would benifit from a simple good quality converter.
-
+I made this in order to migrate from passwordstore to bitwarden. I did so as a reaction to "android password store" being archived (see https://github.com/android-password-store/Android-Password-Store/discussions/3260). I thought people would benifit from a simple to edit, good quality converter. I decided on bash because it's readily available and is easy to edit and hack on
