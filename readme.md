@@ -2,17 +2,17 @@ A bash script for converting a passwordstore directory to a csv format supported
 
 # Usage
 
-if you are paranoid, don't just do `pass2bw ~/passwords > passwords.csv`, the following is more secure:
+`pass2bw ~/passwords > passwords.csv` would suffice.
+if you are paranoid however, the following is more secure:
 ```sh
-# Enter a subshell and make it so created files are only readable by you
+# Enter a subshell where created files are private
 bash
 umask $((2#000))$((2#111))$((2#111))
 
-# Convert the passwords to a csv file store in RAM
+# Convert the passwords and store the results in RAM
 pass2bw ~/passwords > /dev/shm/passwords.csv
 
-# After importing the csv, delete it and leave the
-# subshell to restore the umask
+# After importing the csv, delete it and leave the subshell
 rm /dev/shm/passwords.csv
 exit # or CTRL+D
 ```
