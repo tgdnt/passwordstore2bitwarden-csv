@@ -31,6 +31,10 @@ exit # or CTRL+D
 
 I made this in order to migrate from passwordstore to bitwarden. I did so as a reaction to "android password store" being archived (see https://github.com/android-password-store/Android-Password-Store/discussions/3260). I thought people would benifit from a simple to edit, good quality converter. I decided on bash because it's readily available and is easy to edit and hack on
 
-# Possible future plans
+# Thoughts
 
-A standard password format and a set of programs that convert back and fourth between the standard format and any other format. this would eliminate the need for programs converting from one format to the other. the programs could just target the standard format. the format serves as an intermediate format for such tools. it also serves as a standard for willing password managers
+1. It would be nice to be able to easily convert from any password format to the other
+2. For `n` password formats, `2^n` converters must be created; not a good solution for (1)
+3. Introducing an intermediate format and a set of programs that convert back and fourth between the intermediate format and any other format reduces the number of conversion tools to `2*n`. much better solution compared to (2)
+4. It maybe a good idea to take an already existing format as an intermediate, instead of introducing yet another bespoke format.
+5. It would be nice if the intermediate format became a standard password format eliminating the need for converters eliminating the need for (1)
