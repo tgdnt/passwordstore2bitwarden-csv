@@ -1,4 +1,4 @@
-A bash script for converting a passwordstore directory (ZX2C4's pass, the standard linux password manager) to a csv format supported by bitwarden.
+A bash script for converting a passwordstore directory to a csv format supported by bitwarden. password store is also known as pass, the standard linux password manager; it's built by ZX2C4
 
 # Usage
 
