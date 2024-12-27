@@ -38,7 +38,7 @@ I made this in order to migrate from passwordstore to bitwarden. I did so as a r
 2. For `n` password formats, `2^n` converters must be created; not a good solution for (1)
 3. Introducing an intermediate format and a set of programs that convert back and fourth between the intermediate format and any other format reduces the number of conversion tools to `2*n`. much better solution compared to (2)
 4. It maybe a good idea to take an already existing format as an intermediate, instead of introducing yet another bespoke format.
-5. It would be nice if the intermediate format became a standard password format eliminating the need for converters eliminating the need for (1)
+5. It would be nice if the intermediate format became a standard password format eliminating the need for converters altogether (1)
 
 **Password store**
 
