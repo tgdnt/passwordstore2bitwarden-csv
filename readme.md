@@ -43,6 +43,6 @@ I made this in order to migrate from passwordstore to bitwarden. I did so as a r
 **Password store**
 
 I much prefer password store's way of doing things.
-- It relies directly on the filesystem for storing passwords, thereby bypassing the need for reimplementing a worse filesystem. one that that doesn't integrate into the rest of the system. preventing it from benifiting from all the already existing filesystem management tools that already exist and preventing the user from using their favorite tools for managing files. 
+- It relies directly on the filesystem for storing passwords, thereby bypassing the need for reimplementing a worse filesystem. one that that doesn't integrate into the rest of the system. preventing it from benifiting from all the already existing filesystem management tools and preventing the user from using their favorite programs for managing files. 
 - As a result of keeping the store simple, passwordstore doesn't have to concern itself with version management, syncing, or collaborative work. all of this work can be offloaded nicely to the already existing `git`
 - Password store atomatically has more features than most password managers. no password manager is going to reimplement git and all of it's features. and even if they do. password store got there without wasting effort on reimplementation.
