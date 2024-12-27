@@ -62,7 +62,7 @@ fi
   # my remove already extracted values from $content so they don't end up in
   # the notes.
 
-  # Store the folder path (csv: login_password)
+  # Store the folder path (csv: folder)
   folder="$(dirname "$(realpath --relative-to="$store_location" "$filepath")")"
 
   # Extract the password (csv: login_password)
