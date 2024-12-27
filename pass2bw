@@ -51,7 +51,7 @@ fi
   # The pre-escaping is simply duplicating all quote (") characters.
   #
   # Details: In order to export all characters, including newlines and commas, the
-  # columns must be escaped. values are escaped by surrounding them with
+  # columns must be escaped. in csv values are escaped by surrounding them with
   # quotes, and duplicating the quotes.
   content="$(gpg -d "${filepath}" 2>/dev/null | sed 's/\"/\"\"/g')"
 
