@@ -4,15 +4,18 @@
 set -eu
 
 # Read the store location from the first argument
-# Normalize the path with `realpath` to avoid issues
-# with symlinks and badly formatted paths
+# Use `realpath` to avoid potential symlink issues
+# and normalize badly formatted paths
 store_location="$(realpath "$1")" || {
   echo >&2 "Error: the first argument is missing or invalid"
   echo >&2 "Usage: $0 <passwords_directory>"
   exit 1
 }
 
-# A helper function for printing a csv row
+# A helper function for printing a CSV row
+# Each column of the row is partially escaped
+# The function ends the row with a new line
+# TODO: remove newline insertion
 print_cvs_row(){
   printf '"%s"' "$1"
   shift;
@@ -20,8 +23,7 @@ print_cvs_row(){
   echo -n $'\n'
 }
 
-# Define the order of the columns
-# Feel free to change this
+# column_order defines the order of the columns
 columns_order=(
   "login_password"
   "folder"
@@ -35,7 +37,7 @@ columns_order=(
   "login_username"
 )
 
-# Output the header; there's no reason to edit this
+# print the header row; there's no reason to edit this
 print_cvs_row "${columns_order[@]}"
 
 # Fallback to `find` if `fd` isn't present
@@ -51,15 +53,14 @@ fi
   # The pre-escaping is simply duplicating all quote (") characters.
   #
   # Details: In order to export all characters, including newlines and commas, the
-  # columns must be escaped. in csv values are escaped by surrounding them with
+  # columns must be escaped. Columns in CSV are escaped by surrounding them with
   # quotes, and duplicating the quotes.
   content="$(gpg -d "${filepath}" 2>/dev/null | sed 's/\"/\"\"/g')"
 
-  # The purpose of each following parapgraphs is simply assigning a value to a
-  # variable. Each variable represents a csv field. An empty string is skipped.
+  # Each following parapgraph is associated with a column. the purpose of each paragraph is to extract the value for it's column and assign to a variable.
   #
-  # Any data left in $content are assigned to the notes column. Each paragraph
-  # my remove already extracted values from $content so they don't end up in
+  # $content is the decrypted content of the password file. the content may be used by the paragraphs to extract data for their coreesponding column. Any data left in $content is treated as a note and is assigned to the variable associated with the CSV notes column
+  # Once extracted, the code may remove the extracted values from $content so they don't end up in
   # the notes.
 
   # Store the folder path (csv: folder)
