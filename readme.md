@@ -25,7 +25,10 @@ exit # or CTRL+D
 
 # Missing features
 
-- No automatic handling of TOTP or URIs; these aren't lost however, they are left as notes
+- No handling of TOTP
+- No handling of URIs
+
+Those fields aren't lost however, they are left as notes, like every other unhandled part of the content of the password file 
 
 # Why
 
@@ -33,7 +36,7 @@ I made this in order to migrate from passwordstore to bitwarden. I did so as a r
 
 # Thoughts
 
-**Possible Goals**
+**Password Formats**
 1. It would be nice to be able to easily convert from any password format to the other
 2. For `n` password formats, `2^n` converters must be created; not a good solution for (1)
 3. Introducing an intermediate format and a set of programs that convert back and fourth between the intermediate format and any other format reduces the number of conversion tools to `2*n`. much better solution compared to (2)
