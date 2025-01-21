@@ -20,7 +20,7 @@ exit # or CTRL+D
 
 - Short, Simple, well documented script, easily modifiable for your use case.
 - Proper escaping of weird characters.
-- Content is never discarded; it either consumed, or left in the notes section.
+- Content is never discarded; it's either consumed, or left in the notes section.
 
 
 # Missing features
