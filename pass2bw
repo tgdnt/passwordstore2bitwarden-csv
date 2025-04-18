@@ -64,11 +64,15 @@ fi
   # the notes.
 
   # Store the folder path (csv: folder)
-  folder="$(dirname "$(realpath --relative-to="$store_location" "$filepath")")"
+  foldername="$(dirname "$(realpath --relative-to="$store_location" "$filepath")")"
+
+  # Store the file name
+  filename="$(basename "$filepath" .gpg)"
 
   # Extract the password (csv: login_password)
   if [[ -z "$content" ]]; then
     login_password=""
+    echo "Password $folder/$filename appears to be empty"
   else
     login_password="$(echo -n "$content" | head -1)"
     # Remove the password from the decrypted content
@@ -78,27 +82,26 @@ fi
   # Set the type to login (csv: type)
   type='login'
 
-  # Set the name to the file name (csv: name)
-  name="$(basename "$filepath" .gpg)"
-
-  # 1. Get the username from either the filename or the content of the file
-  # 2. Remove the line containing the username if it's found in the content
-  regex='^user\(name\)\?:'
-  login_username="$(echo -e "$content" | grep "$regex" | cut -d':' -f2 | sed 's/^ //')"
-  if [[ -z "$login_username" ]]; then
-    login_username="$name"
+  # If there's no folder, set entry name from file name and Set the name of the entry to the folder name, if present, otherwise the file name
+  if [[ "$foldername" == "." ]]; then
+        name="$filename"
+        login_username=''
   else
-    content="$(echo -e "$content" | sed /"$regex"/d)"
+        name="$foldername"
+        login_username="$filename"
   fi
 
-  # Skip favorite, fields, reprompt, login_uri
-  favorite=''
-  fields=''
-  reprompt=''
-  login_uri=''
+  # get any url field
+  login_uri=$(echo "$content" | grep ^url: | sed 's/url: //')
 
-  # What's left from the deecrypted content is stored as notes
-  notes="$content"
+  # Keep the rest as fields, except type: login, and username
+  fields=$(echo "$content" | sed '/^url:/d; /^type: login$/d; /^login:/d')
+
+  # Leave other fields empty
+  folder=''
+  notes=''
+  favorite=''
+  reprompt=''
 
   # Construct a csv row in the order defined in $columns_order
   row=()
